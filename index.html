@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- viewport-fit=cover lets the sticky nav respect phone notches via env(safe-area-inset-*) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{{title}}</title>
+    <meta name="description" content="{{description}}" />
+    <link rel="canonical" href="{{siteUrl}}/" />
+    <meta name="theme-color" content="#0c0c0d" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{{title}}" />
+    <meta property="og:description" content="{{description}}" />
+    <meta property="og:url" content="{{siteUrl}}/" />
+    <meta property="og:site_name" content="{{name}}" />
+    <!-- Preview card for LinkedIn, Slack, iMessage, X... (public/og.png, 1200x630).
+         Platforms need an absolute URL, hence siteUrl. -->
+    <meta property="og:image" content="{{siteUrl}}/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="{{name}}: portfolio" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{title}}" />
+    <meta name="twitter:description" content="{{description}}" />
+    <meta name="twitter:image" content="{{siteUrl}}/og.png" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- iPhone/iPad "Add to Home Screen" icon (PNG: iOS ignores SVG icons). -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- The app renders with JavaScript, so without this the browser would only
+         discover the photo after the script runs. Preloading starts the download
+         right away, in parallel. -->
+    <link rel="preload" as="image" href="{{photo}}" fetchpriority="high" />
+
+    <script type="application/ld+json">{{jsonLd}}</script>
+
+    <!-- Applies a saved theme choice before first paint so it never flashes the wrong colours.
+         With no saved choice nothing is set and the CSS default (matte black) applies.
+         Storage is wrapped in try/catch because it throws in some private-browsing modes. -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+        } catch (e) {}
+      })();
+    </script>
+
+    <!-- Fonts load without blocking first paint: media="print" makes the browser fetch the
+         stylesheet in the background and onload switches it on. display=swap shows fallback
+         text first. The <noscript> copy covers visitors with JavaScript off. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600..800&family=Hanken+Grotesk:wght@400;500;600&display=swap"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600..800&family=Hanken+Grotesk:wght@400;500;600&display=swap"
+      />
+    </noscript>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

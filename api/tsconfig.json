@@ -1,0 +1,18 @@
+{
+  // Settings for the serverless functions in this folder (Vercel compiles
+  // them itself, using the tsconfig closest to each file). They run on Node as
+  // ES modules, because the root package.json says "type": "module"; that is
+  // why relative imports end in .js. Files and folders starting with "_" are
+  // helpers, not endpoints.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": ["."]
+}

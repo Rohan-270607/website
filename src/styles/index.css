@@ -1,0 +1,619 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+@layer base {
+  html {
+    scroll-padding-top: 5rem; /* anchored sections land below the sticky nav */
+    -webkit-text-size-adjust: 100%;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    overflow-x: clip; /* last-resort guard against sideways scroll */
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  /* Avoids a lonely last word on its own line in paragraphs. */
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  html {
+    --stripe: linear-gradient(90deg, var(--orange) 0 25%, var(--teal) 25% 50%, var(--gold) 50% 75%, var(--rose) 75% 100%);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+}
+
+@layer components {
+  /* Shared page column: max ~1100px, never less than 16px side gutter. */
+  .page {
+    width: 100%;
+    max-width: 1100px;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 4vw, 2rem);
+  }
+
+  /* Card with a faint tint of its own hue (set per element with
+     style="--c: var(--rose)"). color-mix blends the hue into the surface, so
+     the tint adapts to light and dark automatically. */
+  .sticker {
+    background: color-mix(in srgb, var(--c, var(--teal)) 11%, var(--surface));
+    color: var(--ink);
+    border: 1px solid color-mix(in srgb, var(--c, var(--teal)) 40%, var(--line));
+    border-radius: 0.875rem;
+    box-shadow: 3px 3px 0 var(--c, var(--teal));
+  }
+
+  /* Plain card on the theme's surface. */
+  .paper {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 0.875rem;
+    box-shadow: 4px 4px 0 var(--c, var(--line));
+  }
+
+  /* Buttons. */
+  .btn {
+    display: inline-flex;
+    min-height: 2.75rem; /* 44px touch target */
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem; /* room for an icon next to the label */
+    border-radius: 0.625rem;
+    padding-inline: 1.25rem;
+    font-weight: 600;
+    transition: translate 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  }
+  .btn:hover {
+    translate: 0 -1px;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .btn-primary:hover {
+    box-shadow: var(--shadow);
+    filter: brightness(1.06);
+  }
+  .btn-secondary {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid color-mix(in srgb, var(--ink) 35%, transparent);
+  }
+  .btn-secondary:hover {
+    border-color: var(--ink);
+  }
+
+  /* Text inputs in the contact form: the page colour inside a card, 44px tall.
+     The border is ink at 45%, enough contrast (3:1) to see where to type in
+     both themes. Focus gets the accent border on top of the global focus
+     ring; a field the server rejected (aria-invalid) turns rose. */
+  .field {
+    display: block;
+    width: 100%;
+    min-height: 2.75rem;
+    border-radius: 0.625rem;
+    border: 1px solid color-mix(in srgb, var(--ink) 45%, transparent);
+    background: var(--bg);
+    color: var(--ink);
+    padding-inline: 0.875rem;
+    transition: border-color 0.15s ease;
+  }
+  .field:hover {
+    border-color: color-mix(in srgb, var(--ink) 70%, transparent);
+  }
+  .field:focus {
+    border-color: var(--accent);
+  }
+  .field[aria-invalid='true'] {
+    border-color: var(--rose);
+  }
+
+  /* The name in the headline: underlined with the four-colour stripe. */
+  .marker {
+    background: var(--stripe) 0 100% / 100% 0.12em no-repeat;
+    padding-bottom: 0.06em;
+  }
+
+  /* Hovering or focusing the logo link lifts the sun and nudges the mark up
+     a touch, with a small springy overshoot. */
+  .logo-mark {
+    transition: scale 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .logo-sun {
+    transition: translate 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .logo-link:hover .logo-mark,
+  .logo-link:focus-visible .logo-mark {
+    scale: 1.08;
+  }
+  .logo-link:hover .logo-sun,
+  .logo-link:focus-visible .logo-sun {
+    translate: 0 -2px;
+  }
+
+  /* Nav links: an accent bar grows under the hovered link and stays under
+     the section currently on screen (aria-current, set by Nav.tsx). */
+  .nav-link {
+    position: relative;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.45rem;
+    height: 2px;
+    border-radius: 9999px;
+    background: var(--accent);
+    scale: 0 1;
+    transition: scale 0.25s ease;
+  }
+  .nav-link:hover::after,
+  .nav-link[aria-current='true']::after {
+    scale: 1 1;
+  }
+  .nav-link[aria-current='true'] {
+    color: var(--ink);
+  }
+
+  /* "Available" dot: a soft ring repeatedly grows out of it and fades. */
+  .pulse-dot {
+    position: relative;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: var(--teal);
+  }
+  .pulse-dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    animation: pulse 2.2s ease-out infinite;
+  }
+
+  /* ---------- 3D pointer tilt (Tilt.tsx + useTilt.ts) ----------
+     The perspective is part of the transform, so every card gets its own
+     vanishing point. --rx / --ry are written by useTilt while hovered. */
+  .tilt3d {
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transform-style: preserve-3d; /* lets children sit at their own depth (translateZ) */
+    transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1); /* smooth settle when the pointer leaves */
+  }
+  .tilt3d:hover {
+    transition-duration: 0.12s; /* follow the pointer closely while hovering */
+  }
+  /* A soft light that follows the pointer across a tilted card. */
+  .glare {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgb(255 255 255 / 0.13), transparent 55%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .tilt3d:hover .glare {
+    opacity: 1;
+  }
+
+  /* ---------- Collectible photo card (HoloCard.tsx) ---------- */
+  /* Floats gently. Lives on its own wrapper because the tilt below already
+     owns this element's transform. */
+  .holo-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  /* The stripe, used as a card border. */
+  .holo-frame {
+    padding: 4px;
+    border-radius: 1.15rem;
+    background: linear-gradient(135deg, var(--orange), var(--teal) 35%, var(--gold) 65%, var(--rose));
+    box-shadow: var(--shadow);
+    transform-style: preserve-3d; /* every ancestor of a translateZ child must keep 3D */
+  }
+  .holo-inner {
+    border-radius: calc(1.15rem - 4px);
+    background: var(--surface);
+    transform-style: preserve-3d;
+  }
+  /* A tinted backdrop that shows through a transparent cutout photo. */
+  .holo-art {
+    background:
+      radial-gradient(circle at 25% 15%, color-mix(in srgb, var(--teal) 50%, var(--surface)), transparent 62%),
+      radial-gradient(circle at 85% 95%, color-mix(in srgb, var(--rose) 50%, var(--surface)), transparent 62%),
+      var(--surface);
+  }
+  /* The foil: a band of the four colours whose position follows the pointer
+     (--gx / --gy from useTilt), blended into the photo. Invisible at rest so
+     the photo is perfectly clear until you hover the card. */
+  .holo-foil {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(115deg, transparent 12%, var(--orange) 30%, var(--gold) 42%, var(--teal) 56%, var(--rose) 70%, transparent 88%);
+    background-size: 280% 280%;
+    background-position: var(--gx, 50%) var(--gy, 50%);
+    mix-blend-mode: overlay;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .tilt3d:hover .holo-foil {
+    opacity: 0.55;
+  }
+
+  /* ---------- Cat mascot in the top bar (CatMascot.tsx) ---------- */
+  .cat-btn {
+    --s: 34px; /* head size */
+    --h: 17px; /* half of it: how far each face sits from the centre */
+    perspective: 260px;
+  }
+  .cat-hop {
+    display: grid;
+    place-items: center;
+  }
+  .cat-head {
+    position: relative;
+    width: var(--s);
+    height: var(--s);
+    transform-style: preserve-3d;
+    /* Vars are written by CatMascot while the mouse moves. */
+    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transition: transform 0.2s ease-out;
+  }
+  /* Asleep: chin down, head cocked to one side, and the mouse is ignored. */
+  .cat-head[data-asleep='true'] {
+    transform: rotateX(-28deg) rotateY(0deg) rotateZ(9deg);
+    transition-duration: 0.6s;
+  }
+  /* The six faces of the head's box. */
+  .cat-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 5px;
+    background: color-mix(in srgb, var(--fur) 78%, #000); /* sides are a little darker: fake shading */
+  }
+  .cat-front {
+    background: var(--fur);
+    transform: translateZ(var(--h));
+  }
+  .cat-back {
+    transform: rotateY(180deg) translateZ(var(--h));
+  }
+  .cat-right {
+    transform: rotateY(90deg) translateZ(var(--h));
+  }
+  .cat-left {
+    transform: rotateY(-90deg) translateZ(var(--h));
+  }
+  .cat-top {
+    background: color-mix(in srgb, var(--fur) 90%, #fff);
+    transform: rotateX(90deg) translateZ(var(--h));
+  }
+  .cat-bottom {
+    transform: rotateX(-90deg) translateZ(var(--h));
+  }
+  /* Ears: one flat triangle each, set a little back from the face (translate's
+     third value is the depth). They stay flat because the head only turns
+     about 40 degrees, so they are never seen edge-on. */
+  .cat-ear {
+    position: absolute;
+    top: -10px;
+    width: 13px;
+    height: 13px;
+    translate: 0 0 9px;
+    transform-style: preserve-3d;
+    transform-origin: 50% 100%;
+  }
+  .cat-ear-left {
+    left: 2px;
+    rotate: -8deg;
+  }
+  .cat-ear-right {
+    right: 2px;
+    rotate: 8deg;
+  }
+  .cat-ear i {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--fur) 88%, #000);
+    clip-path: polygon(0 100%, 50% 0, 100% 100%);
+  }
+  .cat-ear .cat-ear-inner {
+    inset: 4px 3px 0;
+    transform: translateZ(0.6px); /* a hair in front, so the two don't flicker against each other */
+  }
+  /* Blink every few seconds. */
+  .cat-eyes-open {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: blink 5s infinite;
+  }
+  .cat-eyes-happy {
+    display: none;
+  }
+  .cat-btn:hover .cat-eyes-open,
+  .cat-btn:focus-visible .cat-eyes-open {
+    display: none;
+  }
+  .cat-btn:hover .cat-eyes-happy,
+  .cat-btn:focus-visible .cat-eyes-happy {
+    display: inline;
+  }
+  .cat-btn:hover .cat-ear-left,
+  .cat-btn:focus-visible .cat-ear-left {
+    animation: ear-wiggle 0.5s ease-in-out 2;
+  }
+  .cat-btn:hover .cat-ear-right,
+  .cat-btn:focus-visible .cat-ear-right {
+    animation: ear-wiggle 0.5s ease-in-out 2 reverse;
+  }
+  /* Floating "z z z" while asleep. */
+  .cat-zzz {
+    position: absolute;
+    left: 62%;
+    top: -2px;
+    pointer-events: none;
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .cat-zzz span {
+    position: absolute;
+    left: calc(var(--n) * 7px);
+    top: 0;
+    font-size: calc(0.65rem + var(--n) * 0.12rem);
+    opacity: 0;
+    animation: zzz 2.4s ease-out infinite;
+    animation-delay: calc(var(--n) * 0.6s);
+  }
+
+  /* Red | teal | gold | rose, hard-edged: the site's signature motif. */
+  .stripe {
+    height: 0.3rem;
+    width: 4rem;
+    border-radius: 9999px;
+    background: var(--stripe);
+  }
+
+  /* Tilt via the standalone `rotate` property, so hover transforms never
+     fight with it. Tilts are small (about 1 degree): enough to feel placed by
+     hand, not enough to look messy. Below desktop width cards are often full
+     width, where even 1 degree drops one end visibly, so they get a third. */
+  .tilted {
+    rotate: calc(var(--tilt, 0deg) * 0.35);
+  }
+  @media (min-width: 1024px) {
+    .tilted {
+      rotate: var(--tilt, 0deg);
+    }
+  }
+
+  /* Round social button: quiet by default, fills with its hue on hover. */
+  .dock-btn {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 9999px;
+    font-size: 1.15rem;
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    transition: translate 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .dock-btn:hover,
+  .dock-btn:focus-visible {
+    translate: 0 -3px;
+    background: var(--c);
+    border-color: var(--c);
+    color: var(--on-hue);
+  }
+  /* Tooltip. aria-hidden: the button's aria-label already names it. */
+  .dock-btn .tip {
+    position: absolute;
+    bottom: calc(100% + 0.6rem);
+    left: 50%;
+    translate: -50% 0;
+    padding: 0.15rem 0.6rem;
+    border-radius: 0.5rem;
+    background: var(--ink);
+    color: var(--bg);
+    font-size: var(--text-small);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .dock-btn:hover .tip,
+  .dock-btn:focus-visible .tip {
+    opacity: 1;
+  }
+
+  /* Project tiles lift slightly on hover. */
+  .tile {
+    transition: rotate 0.25s ease, translate 0.25s ease, box-shadow 0.25s ease;
+  }
+  .tile:hover,
+  .tile:focus-within {
+    rotate: 0deg;
+    translate: 0 -4px;
+    box-shadow: 7px 7px 0 var(--c, var(--line));
+  }
+
+  /* Background waves (Waves.tsx): each ribbon slides from just off one edge to
+     just off the other. Only `translate` changes, so it runs on the GPU. */
+  .wave {
+    animation: sweep var(--d, 70s) linear infinite var(--dir, normal);
+    animation-delay: var(--delay, 0s);
+  }
+
+  /* Disco mode (the lamp-cord easter egg): LampCord adds the class "disco" to
+     <html> for a few seconds and Disco.tsx draws the lights and confetti.
+     Here the background waves just speed up. Skipped for reduced motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    html.disco .wave {
+      animation-duration: 6s;
+    }
+  }
+
+  /* One stage light: a long thin triangle whose point is pinned to a corner
+     (--x, --y), fading out along its length, swinging between --from and --to. */
+  .disco-beam {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: 150vmax;
+    height: 36vmax;
+    margin-top: -18vmax; /* centre the triangle's point on the corner */
+    transform-origin: 0 50%;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--beam) 75%, transparent), transparent 85%);
+    clip-path: polygon(0 50%, 100% 0, 100% 100%);
+    opacity: 0.55;
+    rotate: var(--from);
+    animation: beam-sweep var(--d) ease-in-out infinite alternate;
+  }
+
+  /* Faint dotted grid behind the About notes. */
+  .dots::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: radial-gradient(var(--ink) 1px, transparent 1.1px);
+    background-size: 26px 26px;
+    opacity: 0.07;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pulse-dot::after,
+    .holo-float,
+    .cat-eyes-open,
+    .cat-ear,
+    .cat-zzz span {
+      animation: none;
+    }
+    .cat-zzz span {
+      opacity: 0.8; /* still shows the zzz, just without drifting */
+    }
+    /* Frozen mid-screen instead of off-screen, so the ribbons are still seen. */
+    .wave {
+      animation: none;
+      translate: -25vw 0;
+    }
+    .dock-btn,
+    .tile,
+    .btn,
+    .logo-mark,
+    .logo-sun,
+    .nav-link::after,
+    .tilt3d,
+    .cat-head {
+      transition: none;
+    }
+  }
+}
+
+@keyframes sweep {
+  from {
+    translate: -1700px 0;
+  }
+  to {
+    translate: 100vw 0;
+  }
+}
+
+@keyframes beam-sweep {
+  to {
+    rotate: var(--to);
+  }
+}
+
+@keyframes blink {
+  0%,
+  94%,
+  100% {
+    scale: 1 1;
+  }
+  97% {
+    scale: 1 0.1;
+  }
+}
+
+@keyframes ear-wiggle {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  50% {
+    rotate: 14deg;
+  }
+}
+
+@keyframes zzz {
+  0% {
+    opacity: 0;
+    translate: 0 6px;
+  }
+  25% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    translate: 6px -16px;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -8px;
+  }
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
